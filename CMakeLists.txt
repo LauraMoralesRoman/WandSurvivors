@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(${CMAKE_SOURCE_DIR}/interfaces)
+include_directories(${CMAKE_SOURCE_DIR}/components)
 
 # We'll include the other CMakeLists.txt files
 add_subdirectory(components)
