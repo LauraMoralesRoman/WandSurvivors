@@ -3,8 +3,10 @@
 using VTable = int*;
 
 class Component {
-	virtual void update() = 0;
-	virtual void start() = 0;
+	public:
+		virtual void update() = 0;
+		virtual void start() = 0;
+		virtual ~Component() {}
 };
 
 

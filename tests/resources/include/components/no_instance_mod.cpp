@@ -8,6 +8,6 @@ void GameObject::update() {
 
 }
 
-int GameObject::suma(int a, int b) {
-	return a + b;
+int GameObject::foo(int a, int b) {
+	return 0;
 }

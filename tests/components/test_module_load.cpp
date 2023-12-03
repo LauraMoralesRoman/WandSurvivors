@@ -2,25 +2,13 @@
 #include <format>
 #include <gtest/gtest.h>
 #include <resources.hpp>
+#include "utils.hpp"
 
 #include <string>
 
 #include <components/test_component.hpp>
 #include <core.hpp>
 #include <variant>
-
-std::string repr_mod_load_error(const core::components::LoadModError& err) {
-	struct {
-		std::string operator()(const core::components::InvalidFileError& err) {
-			return std::format("Could not open file:\n\t {}", err.err);
-		}
-
-		std::string operator()(const core::components::LackingMethodError& err) {
-			return std::format("{} method not present: {}", err.name, err.err);
-		}
-	} visitor;
-	return std::visit(visitor, err);
-}
 
 TEST(Components, LoadModule) {
 	const auto path = resource_path("build/components/libbasic_module.so");
@@ -36,7 +24,7 @@ TEST(Components, LoadModule) {
 	auto instance = res.instantiate();
 	ASSERT_NE(instance, nullptr) << "Loaded instance function is null";
 
-	ASSERT_EQ(instance->suma(1, 2), 3) << "The sum method does not work properly, something failed when instantiating";
+	ASSERT_EQ(instance->foo(1, 2), 3) << "The sum method does not work properly, something failed when instantiating";
 }
 
 TEST(Components, LoadModuleNoFunction) {

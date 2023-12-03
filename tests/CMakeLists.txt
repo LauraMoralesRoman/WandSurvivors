@@ -13,4 +13,5 @@ function(add_gtest TEST_NAME TEST_FILE)
 	add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction()
 
-add_gtest("Components" components/test_module_load.cpp)
+add_gtest("ModuleLoad" components/test_module_load.cpp)
+add_gtest("ModuleReload" components/test_module_reload.cpp)
