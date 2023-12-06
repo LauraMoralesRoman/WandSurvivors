@@ -7,7 +7,6 @@ void InputHandler::mapKeyToAction(SDL_KeyCode key, ActionType action) {
   if (it == InputHandler::keyMappings.end()) {
     InputHandler::keyMappings.emplace(key, action);
     InputHandler::actions.emplace(action, true);
-    std::cout << "Mapeado correctamente" << std::endl;
   }
 }
 
