@@ -8,3 +8,4 @@ function(add_gtest TEST_NAME TEST_FILE)
 endfunction()
 
 add_gtest("Dummy" test_dummy.cpp)
+add_gtest("input_handler" test_inputHandler.cpp)
