@@ -63,7 +63,7 @@ TEST(Components, InvalidReload) {
 	
 	auto reloaded = reload_res.error().prev_module;
 	
-	ASSERT_EQ(v[0]->foo(3, 2), 5);
+	ASSERT_EQ(v[0]->foo(3, 2), 5) << "Should have default behavior";
 	core::components::set_vtables(reloaded, v);
-	ASSERT_EQ(v[0]->foo(3, 2), 5);
+	ASSERT_EQ(v[0]->foo(3, 2), 5) << "Should have the same behavior because the new module couldn't be loaded";
 }

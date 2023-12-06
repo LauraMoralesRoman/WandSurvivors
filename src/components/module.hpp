@@ -1,6 +1,7 @@
 #pragma once
 
 #include "component.hpp"
+#include "components/handler.hpp"
 #include <algorithm>
 #include <bits/ranges_base.h>
 #include <cstdint>
@@ -35,6 +36,7 @@ namespace core::components {
 	struct Module {
 		std::string path;
 		std::function<std::unique_ptr<C>()> instantiate;
+		std::shared_ptr<DynLibHandler> handle;
 	};
 
 	// Result types
@@ -50,6 +52,7 @@ namespace core::components {
 	template <typename C>
 	using ReloadResult = Result<Module<C>, ReloadError<C>>;
 
+
 	//////////////////////////
 	// Function definitions //
 	//////////////////////////
@@ -58,18 +61,21 @@ namespace core::components {
 		Module<C> mod;
 		mod.path = path;
 		// Try load the library
-		auto handler = dlopen(path.c_str(), RTLD_LAZY);
-		if (!handler) {
+		std::shared_ptr handle = std::make_shared<DynLibHandler>(path);
+		if (!*handle) {
 			return {InvalidFileError(dlerror())};
 		}
 
-		auto instantiate = reinterpret_cast<C*(*)()>(dlsym(handler, "instantiate"));
-		if (!instantiate) {
+		mod.handle = handle;
+
+		auto instantiate_res = handle->sym<C*()>("instantiate");
+		if (!instantiate_res.valid()) {
 			return {LackingMethodError{
 				.name = "instantiate", 
-				.err = dlerror()
+				.err = func_load_err_repr(instantiate_res.error())
 			}};
 		}
+		auto instantiate = instantiate_res.value();
 
 		mod.instantiate = {[=]() -> std::unique_ptr<C> {
 			return std::unique_ptr<C>(instantiate());

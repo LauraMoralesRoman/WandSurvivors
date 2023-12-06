@@ -19,6 +19,11 @@ file(GLOB_RECURSE PROJECT_HEADERS "./*.hpp")
 # Add the executable with the collected source and header files
 add_executable(${CMAKE_PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
+message("Found the following sources:")
+foreach(SOURCE ${PROJECT_SOURCES})
+    message("    - ${SOURCE}")
+endforeach()
+
 # Link the libraries from the list
 target_link_libraries(${CMAKE_PROJECT_NAME} ${MY_PROJECT_LIBRARIES})
 
