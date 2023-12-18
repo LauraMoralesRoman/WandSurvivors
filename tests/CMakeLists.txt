@@ -15,4 +15,5 @@ endfunction()
 
 add_gtest("ModuleLoad" components/test_module_load.cpp)
 add_gtest("ModuleReload" components/test_module_reload.cpp)
-add_gtest("input_handler" test_inputHandler.cpp)
+add_gtest("EntityManager" components/test_entity_manager.cpp)
+add_gtest("input_handler" input/test_inputHandler.cpp)
