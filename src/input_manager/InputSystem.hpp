@@ -1,23 +1,25 @@
-#ifndef INPUT_HANDLER_HPP
-#define INPUT_HANDLER_HPP
+#pragma once
 
+#include "result.hpp"
 #include <SDL2/SDL.h>
+#include <string>
 #include <unordered_map>
 
 enum class ActionType { MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN, ATTACK };
 
-class InputHandler {
+class InputSystem {
 public:
   void mapKeyToAction(SDL_KeyCode key, ActionType action);
 
   void mapMouseToAction(ActionType action);
 
-  bool isActionTriggered(ActionType action) const;
+  bool isActionMapped(ActionType action) const;
+
+  using FunCheckMapErr = Result<ActionType, std::string>;
+  FunCheckMapErr pressKey(SDL_KeyCode key);
 
 private:
   std::unordered_map<SDL_KeyCode, ActionType> keyMappings;
   std::unordered_map<ActionType, bool> actions;
   bool isMouseLeftClicked = false;
 };
-
-#endif
