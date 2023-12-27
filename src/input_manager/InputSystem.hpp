@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 
+namespace input_manager::inputSystem {
 enum class ActionType { MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN, ATTACK };
 
 class InputSystem {
@@ -23,3 +24,4 @@ private:
   std::unordered_map<ActionType, bool> actions;
   bool isMouseLeftClicked = false;
 };
+} // namespace input_manager::inputSystem

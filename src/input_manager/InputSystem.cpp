@@ -1,11 +1,13 @@
 #include "InputSystem.hpp"
 
-void InputSystem::mapKeyToAction(SDL_KeyCode key, ActionType action) {
-  auto it = InputSystem::keyMappings.find(key);
+namespace input_manager::inputSystem {
 
-  if (it == InputSystem::keyMappings.end()) {
-    InputSystem::keyMappings.emplace(key, action);
-    InputSystem::actions.emplace(action, true);
+void InputSystem::mapKeyToAction(SDL_KeyCode key, ActionType action) {
+  auto it = keyMappings.find(key);
+
+  if (it == keyMappings.end()) {
+    keyMappings.emplace(key, action);
+    actions.emplace(action, true);
   }
 }
 
@@ -34,3 +36,4 @@ InputSystem::FunCheckMapErr InputSystem::pressKey(SDL_KeyCode key) {
     return FunCheckMapErr("Key not mapped");
   }
 }
+} // namespace input_manager::inputSystem
