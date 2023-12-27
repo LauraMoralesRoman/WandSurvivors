@@ -5,6 +5,7 @@
 #include "defs.hpp"
 #include "result.hpp"
 #include "spdlog/spdlog.h"
+#include "utils/metafunctions.hpp"
 
 #include <algorithm>
 #include <tuple>
@@ -64,39 +65,10 @@ namespace core::components {
 
 	// God forgive me for what I'm about to do
 	namespace metafunctions {
-		template<typename T, template<typename> class Morphism>
-		struct TransformTuple;
-
-		template<typename... Types, template<typename> class Morphism>
-		struct TransformTuple<std::tuple<Types...>, Morphism> {
-			using type = std::tuple<typename Morphism<Types>::type...>;
-		};
-
-		// Specific type mappings
 		template<typename T>
 		struct WrapEntitySpecificManagerMorph {
 			using type = LoadSpecificManagerResult<T>;
 		};
-
-		// Helper functions
-		template<typename T, typename... List>
-		struct is_in_list;
-
-		// Specialization for empty list
-		template<typename T>
-		struct is_in_list<T> : std::false_type {};
-
-		// Specialization for non-empty list
-		template<typename T, typename Head, typename... Tail>
-		struct is_in_list<T, Head, Tail...> : std::conditional<
-			std::is_same<T, Head>::value,
-			std::true_type,
-			is_in_list<T, Tail...>
-		>::type {};
-
-		// Helper variable template for easier usage
-		template<typename T, typename... List>
-		inline constexpr bool is_in_list_v = is_in_list<T, List...>::value;
 	}
 
 	template<typename... ModTypes>
@@ -109,7 +81,7 @@ namespace core::components {
 
 			template<typename T>
 			Entity<T>* instantiate() {
-				static_assert(metafunctions::is_in_list_v<T, ModTypes...>, "Type should be in the Manager defined list");
+				static_assert(metafunc::is_in_list_v<T, ModTypes...>, "Type should be in the Manager defined list");
 
 				auto& manager_res = std::get<typename metafunctions::WrapEntitySpecificManagerMorph<T>::type>(specific_managers);
 				if (manager_res.valid()) {
@@ -121,8 +93,9 @@ namespace core::components {
 				}
 			}
 
+		protected:
+			metafunc::TransformTuple<std::tuple<ModTypes...>, metafunctions::WrapEntitySpecificManagerMorph>::type specific_managers;
 		private:
-			metafunctions::TransformTuple<std::tuple<ModTypes...>, metafunctions::WrapEntitySpecificManagerMorph>::type specific_managers;
 
 			template<template <typename> class TypeToModuleRes>
 			static auto create_specific_managers() {

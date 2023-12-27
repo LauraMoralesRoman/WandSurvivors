@@ -13,7 +13,17 @@ function(add_gtest TEST_NAME TEST_FILE)
 	add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
 endfunction()
 
-add_gtest("ModuleLoad" components/test_module_load.cpp)
-add_gtest("ModuleReload" components/test_module_reload.cpp)
-add_gtest("EntityManager" components/test_entity_manager.cpp)
-add_gtest("input_system" input/test_inputSystem.cpp)
+file(GLOB_RECURSE TEST_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/test_*.cpp
+)
+
+message("Found the following test sources:")
+
+foreach(TEST_FILE ${TEST_FILES})
+    get_filename_component(TEST_NAME ${TEST_FILE} NAME_WE) # Get the file name without extension
+	string(REGEX REPLACE "^test_" "" TEST_TRIMMED "${TEST_NAME}")
+
+	message("	${TEST_FILE} -> ${TEST_TRIMMED}")
+
+	add_gtest(${TEST_NAME} ${TEST_FILE})
+endforeach()
