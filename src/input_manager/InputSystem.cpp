@@ -2,7 +2,12 @@
 
 namespace input_manager::inputSystem {
 
-void InputSystem::mapKeyToAction(SDL_KeyCode key, ActionType action) {
+InputSystem &InputSystem::getInstance() {
+  static InputSystem instance;
+  return instance;
+}
+
+void InputSystem::mapKeyToAction(int key, ActionType action) {
   auto it = keyMappings.find(key);
 
   if (it == keyMappings.end()) {
@@ -25,7 +30,7 @@ bool InputSystem::isActionMapped(ActionType action) const {
   return false;
 }
 
-InputSystem::FunCheckMapErr InputSystem::pressKey(SDL_KeyCode key) {
+InputSystem::FunCheckMapErr InputSystem::pressKey(int key) {
   auto it = keyMappings.find(key);
 
   if (it != keyMappings.end()) {

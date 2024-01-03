@@ -1,44 +1,45 @@
 #include "../include/raylib.h"
+#include "entities/Player.hpp"
 #include "input_manager/InputSystem.hpp"
 #include "input_manager/PubSubSystem.hpp"
 #include <functional>
 #include <iostream>
 #include <spdlog/spdlog.h>
+#include <vector>
 
 using namespace input_manager::inputSystem;
 using namespace input_manager::pubSub;
 
-void setupMovementFunctions(Vector2 &ballPosition) {
-  std::function<void()> moveUp = [&ballPosition]() { ballPosition.y -= 2.0f; };
+void pubSubSystemSetup(PubSubSystem &system, Vector2 &ballPosition) {
+
+  std::function<void()> moveUp = [&ballPosition]() { ballPosition.y -= 20.0f; };
 
   std::function<void()> moveDown = [&ballPosition]() {
-    ballPosition.y += 2.0f;
+    ballPosition.y += 20.0f;
   };
 
   std::function<void()> moveRight = [&ballPosition]() {
-    ballPosition.x += 2.0f;
+    ballPosition.x += 20.0f;
   };
 
   std::function<void()> moveLeft = [&ballPosition]() {
-    ballPosition.x -= 2.0f;
+    ballPosition.x -= 20.0f;
   };
-}
 
-// TODO:cambiar el parametro de subscribe
-void pubSubSystemSetup(PubSubSystem &pubSubSystem) {
-  // pubSubSystem.subscribe(ActionType::MOVE_UP, setupMovementFunctions);
+  system.subscribe(ActionType::MOVE_UP, moveUp);
+  system.subscribe(ActionType::MOVE_DOWN, moveDown);
+  system.subscribe(ActionType::MOVE_RIGHT, moveRight);
+  system.subscribe(ActionType::MOVE_LEFT, moveLeft);
 }
 
 void inputSystemSetup(InputSystem &inputSystem) {
-  inputSystem.mapKeyToAction(SDLK_a, ActionType::MOVE_LEFT);
-  inputSystem.mapKeyToAction(SDLK_d, ActionType::MOVE_RIGHT);
-  inputSystem.mapKeyToAction(SDLK_w, ActionType::MOVE_UP);
-  inputSystem.mapKeyToAction(SDLK_s, ActionType::MOVE_DOWN);
+  inputSystem.mapKeyToAction(KEY_A, ActionType::MOVE_LEFT);
+  inputSystem.mapKeyToAction(KEY_D, ActionType::MOVE_RIGHT);
+  inputSystem.mapKeyToAction(KEY_W, ActionType::MOVE_UP);
+  inputSystem.mapKeyToAction(KEY_S, ActionType::MOVE_DOWN);
 }
 
 void gameSetup(Vector2 &ballPosition) {
-  InputSystem inputSystem;
-  inputSystemSetup(inputSystem);
 
   // screen settings
   const int screenWidth = 800;
@@ -51,10 +52,18 @@ void gameSetup(Vector2 &ballPosition) {
   SetTargetFPS(60);
 }
 
-void gameLoop(Vector2 &ballPosition) {
+void gameLoop(Vector2 &ballPosition, InputSystem &inputSystem,
+              PubSubSystem &pubSubSystem) {
   while (!WindowShouldClose()) {
     // update
+    int keyPressed = GetKeyPressed();
 
+    auto result = inputSystem.pressKey(keyPressed);
+    if (result.valid()) {
+      auto action = result.value();
+      std::cout << "aaa" << std::endl;
+      pubSubSystem.publish(action);
+    }
     // draw
     BeginDrawing();
 
@@ -71,10 +80,16 @@ void gameLoop(Vector2 &ballPosition) {
 }
 
 int main() {
-
   Vector2 ballPosition;
+
+  InputSystem &inputSystem = InputSystem::getInstance();
+  inputSystemSetup(inputSystem);
+
+  PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
+  pubSubSystemSetup(pubSubSystem, ballPosition);
+
   gameSetup(ballPosition);
-  gameLoop(ballPosition);
+  gameLoop(ballPosition, inputSystem, pubSubSystem);
 
   return 0;
 }

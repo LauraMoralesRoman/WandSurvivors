@@ -1,10 +1,11 @@
 #include "../../include/raylib.h"
+#include "PlayerInputHandler.hpp"
 #include "PlayerStat.hpp"
 #include "Wand.hpp"
 #include <list>
 #pragma once
 
-class Player {
+class Player : public PlayerInputHandler {
 public:
   Player(Vector2 initialPosition, PlayerStat initialStats,
          std::list<Wand> initialWands)
@@ -23,6 +24,16 @@ public:
   std::list<Wand> getPlayerWands() const;
   void addNewWand(Wand wand);
   void deleteWand(Wand wand);
+
+  // pubsub
+  void subscribe(ActionType action, PubSubSystem::Callback callBack) override {
+    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
+    pubSubSystem.subscribe(action, callBack);
+  }
+
+  void mute(input_manager::pubSub::PubSubSystem::Topic) override {
+    // TODO: mute
+  }
 
 private:
   Vector2 actualPosition;

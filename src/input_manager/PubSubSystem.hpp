@@ -8,6 +8,11 @@
 namespace input_manager::pubSub {
 class PubSubSystem {
 public:
+  static PubSubSystem &getInstance();
+
+  PubSubSystem(const PubSubSystem &) = delete;
+  void operator=(const PubSubSystem &) = delete;
+
   using Callback = std::function<void()>;
   using Topic = std::vector<Callback>;
 
@@ -21,6 +26,10 @@ public:
   void publish(inputSystem::ActionType);
 
 private:
+  PubSubSystem() {}
+
+  ~PubSubSystem() {}
+
   std::unordered_map<inputSystem::ActionType, Topic> topics;
 };
 } // namespace input_manager::pubSub

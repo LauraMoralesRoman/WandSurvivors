@@ -3,13 +3,14 @@
 
 namespace input_manager::pubSub {
 
+PubSubSystem &PubSubSystem::getInstance() {
+  static PubSubSystem instance;
+  return instance;
+}
+
 bool PubSubSystem::exists(inputSystem::ActionType action) {
   auto it = topics.find(action);
-  if (it != topics.end()) {
-    return true;
-  } else {
-    return false;
-  }
+  return (it != topics.end());
 }
 
 PubSubSystem::FunGetTopicErr
@@ -26,14 +27,16 @@ PubSubSystem::getTopic(inputSystem::ActionType action) {
 
 void PubSubSystem::subscribe(inputSystem::ActionType action,
                              Callback callback) {
-  auto &topic = topics[action];
+  auto &instance = getInstance();
+  auto &topic = instance.topics[action];
   topic.push_back(callback);
 }
 
 void PubSubSystem::publish(inputSystem::ActionType action) {
-  auto it = topics.find(action);
+  auto &instance = getInstance();
+  auto it = instance.topics.find(action);
 
-  if (it != topics.end()) {
+  if (it != instance.topics.end()) {
     auto &vect = it->second;
 
     for (const auto &func : vect) {

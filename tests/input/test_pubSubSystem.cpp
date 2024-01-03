@@ -5,8 +5,9 @@
 #include <streambuf>
 
 TEST(PubSubSystemTest, SubscribeTest) {
-  input_manager::pubSub::PubSubSystem system;
+  auto &system = input_manager::pubSub::PubSubSystem::getInstance();
   auto action = input_manager::inputSystem::ActionType::MOVE_UP;
+
   std::function<void()> moveUpFunction = []() {
     std::cout << "Me muevo hacia arriba" << std::endl;
   };
@@ -31,8 +32,9 @@ TEST(PubSubSystemTest, SubscribeTest) {
 }
 
 TEST(PubSubSystemTest, PublishTest) {
-  input_manager::pubSub::PubSubSystem system;
+  auto &system = input_manager::pubSub::PubSubSystem::getInstance();
   auto action = input_manager::inputSystem::ActionType::MOVE_UP;
+
   std::function<void()> moveUpFunction = []() {
     std::cout << "Me muevo hacia arriba" << std::endl;
   };
