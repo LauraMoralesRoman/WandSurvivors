@@ -36,13 +36,23 @@ void PubSubSystem::publish(inputSystem::ActionType action) {
   auto &instance = getInstance();
   auto it = instance.topics.find(action);
 
-  if (it != instance.topics.end()) {
+  if (it != instance.topics.end() && !instance.muted) {
     auto &vect = it->second;
 
     for (const auto &func : vect) {
       func();
     }
   }
+}
+
+void PubSubSystem::mute() {
+  auto &instance = getInstance();
+  instance.muted = true;
+}
+
+void PubSubSystem::unmute() {
+  auto &instance = getInstance();
+  instance.muted = false;
 }
 
 } // namespace input_manager::pubSub

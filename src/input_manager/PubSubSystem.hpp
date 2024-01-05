@@ -25,10 +25,16 @@ public:
 
   void publish(inputSystem::ActionType);
 
+  void mute();
+
+  void unmute();
+
 private:
   PubSubSystem() {}
 
   ~PubSubSystem() {}
+
+  bool muted = false;
 
   std::unordered_map<inputSystem::ActionType, Topic> topics;
 };

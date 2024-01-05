@@ -5,7 +5,15 @@
 #include <unordered_map>
 
 namespace input_manager::inputSystem {
-enum class ActionType { MOVE_LEFT, MOVE_RIGHT, MOVE_UP, MOVE_DOWN, ATTACK };
+enum class ActionType {
+  MOVE_LEFT,
+  MOVE_RIGHT,
+  MOVE_UP,
+  MOVE_DOWN,
+  ATTACK,
+  INTERACT,
+  QUIT
+};
 
 class InputSystem {
 public:

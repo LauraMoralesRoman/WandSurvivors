@@ -31,8 +31,14 @@ public:
     pubSubSystem.subscribe(action, callBack);
   }
 
-  void mute(input_manager::pubSub::PubSubSystem::Topic) override {
-    // TODO: mute
+  void mute() override {
+    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
+    pubSubSystem.mute();
+  }
+
+  void unmute() override {
+    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
+    pubSubSystem.unmute();
   }
 
 private:

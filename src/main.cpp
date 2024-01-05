@@ -37,6 +37,8 @@ void inputSystemSetup(InputSystem &inputSystem) {
   inputSystem.mapKeyToAction(KEY_D, ActionType::MOVE_RIGHT);
   inputSystem.mapKeyToAction(KEY_W, ActionType::MOVE_UP);
   inputSystem.mapKeyToAction(KEY_S, ActionType::MOVE_DOWN);
+  inputSystem.mapKeyToAction(KEY_E, ActionType::INTERACT);
+  inputSystem.mapKeyToAction(KEY_Q, ActionType::QUIT);
 }
 
 void gameSetup(Vector2 &ballPosition) {
@@ -52,18 +54,26 @@ void gameSetup(Vector2 &ballPosition) {
   SetTargetFPS(60);
 }
 
-void gameLoop(Vector2 &ballPosition, InputSystem &inputSystem,
-              PubSubSystem &pubSubSystem) {
+void gameLoop(Vector2 &ballPosition, Rectangle &upgradeStation,
+              InputSystem &inputSystem, PubSubSystem &pubSubSystem) {
   while (!WindowShouldClose()) {
+    bool collision = CheckCollisionCircleRec(ballPosition, 50, upgradeStation);
+
     // update
     int keyPressed = GetKeyPressed();
-
     auto result = inputSystem.pressKey(keyPressed);
+
     if (result.valid()) {
       auto action = result.value();
-      std::cout << "aaa" << std::endl;
+      if (action == ActionType::INTERACT && collision) {
+        pubSubSystem.mute();
+      }
+      if (action == ActionType::QUIT) {
+        pubSubSystem.unmute();
+      }
       pubSubSystem.publish(action);
     }
+
     // draw
     BeginDrawing();
 
@@ -74,6 +84,7 @@ void gameLoop(Vector2 &ballPosition, InputSystem &inputSystem,
     // draw character
     DrawCircleV(ballPosition, 50, MAROON);
 
+    DrawRectangle(600, 250, 20, 20, GREEN);
     EndDrawing();
   }
   CloseWindow();
@@ -81,6 +92,7 @@ void gameLoop(Vector2 &ballPosition, InputSystem &inputSystem,
 
 int main() {
   Vector2 ballPosition;
+  Rectangle upgradeStation = {600, 250, 20, 20};
 
   InputSystem &inputSystem = InputSystem::getInstance();
   inputSystemSetup(inputSystem);
@@ -89,7 +101,7 @@ int main() {
   pubSubSystemSetup(pubSubSystem, ballPosition);
 
   gameSetup(ballPosition);
-  gameLoop(ballPosition, inputSystem, pubSubSystem);
+  gameLoop(ballPosition, upgradeStation, inputSystem, pubSubSystem);
 
   return 0;
 }

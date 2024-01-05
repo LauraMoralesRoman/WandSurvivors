@@ -9,7 +9,7 @@ public:
   float getHealth() const;
   void setHealth(float newHealth);
 
-  float gerArmor() const;
+  float getArmor() const;
   void setArmor(float newArmor);
 
   float getSpeed() const;
