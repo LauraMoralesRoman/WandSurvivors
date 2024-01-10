@@ -1,8 +1,7 @@
 #pragma once
+#include "Player.hpp"
 
-#include "UpgradeStation.hpp"
-
-class UpgradeWandStats : public UpgradeStation {
+class UpgradeWandStats {
 public:
-  void upgradeDamage(Player &player) override;
+  virtual void upgradeDamage(Player &player) const = 0;
 };

@@ -10,6 +10,8 @@
 using namespace input_manager::inputSystem;
 using namespace input_manager::pubSub;
 
+// auxiliar functions
+
 void pubSubSystemSetup(PubSubSystem &system, Vector2 &ballPosition) {
 
   std::function<void()> moveUp = [&ballPosition]() { ballPosition.y -= 20.0f; };
@@ -41,11 +43,34 @@ void inputSystemSetup(InputSystem &inputSystem) {
   inputSystem.mapKeyToAction(KEY_Q, ActionType::QUIT);
 }
 
-void gameSetup(Vector2 &ballPosition) {
+void move(int key, bool collision, InputSystem &inputSystem,
+          PubSubSystem &pubSubSystem) {
+
+  auto result = inputSystem.pressKey(key);
+
+  if (result.valid()) {
+    auto action = result.value();
+    if (action == ActionType::INTERACT && collision) {
+      pubSubSystem.mute();
+    }
+    if (action == ActionType::QUIT) {
+      pubSubSystem.unmute();
+    }
+    pubSubSystem.publish(action);
+  }
+}
+
+void gameSetup(Camera2D &camera, Vector2 &ballPosition) {
 
   // screen settings
-  const int screenWidth = 800;
-  const int screenHeight = 450;
+  const int screenWidth = 1920;
+  const int screenHeight = 1080;
+
+  // camera settings
+  camera.target = (Vector2){ballPosition.x + 20.0f, ballPosition.y + 20.0f};
+  camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+  camera.rotation = 0.0f;
+  camera.zoom = 1.0f;
 
   InitWindow(screenWidth, screenHeight, "WandSurvivors");
 
@@ -54,28 +79,44 @@ void gameSetup(Vector2 &ballPosition) {
   SetTargetFPS(60);
 }
 
-void gameLoop(Vector2 &ballPosition, Rectangle &upgradeStation,
-              InputSystem &inputSystem, PubSubSystem &pubSubSystem) {
+void gameLoop(Camera2D &camera, Vector2 &ballPosition,
+              Rectangle &upgradeStation, InputSystem &inputSystem,
+              PubSubSystem &pubSubSystem) {
+
   while (!WindowShouldClose()) {
-    bool collision = CheckCollisionCircleRec(ballPosition, 50, upgradeStation);
+    bool isInUpgradeZone =
+        CheckCollisionCircleRec(ballPosition, 50, upgradeStation);
 
     // update
-    int keyPressed = GetKeyPressed();
-    auto result = inputSystem.pressKey(keyPressed);
-
-    if (result.valid()) {
-      auto action = result.value();
-      if (action == ActionType::INTERACT && collision) {
-        pubSubSystem.mute();
-      }
-      if (action == ActionType::QUIT) {
-        pubSubSystem.unmute();
-      }
-      pubSubSystem.publish(action);
+    // movement
+    if (IsKeyDown(KEY_A)) {
+      move(KEY_A, isInUpgradeZone, inputSystem, pubSubSystem);
     }
 
+    if (IsKeyDown(KEY_D)) {
+      move(KEY_D, isInUpgradeZone, inputSystem, pubSubSystem);
+    }
+
+    if (IsKeyDown(KEY_W)) {
+      move(KEY_W, isInUpgradeZone, inputSystem, pubSubSystem);
+    }
+
+    if (IsKeyDown(KEY_S)) {
+      move(KEY_S, isInUpgradeZone, inputSystem, pubSubSystem);
+    }
+
+    if (IsKeyDown(KEY_E)) {
+      move(KEY_E, isInUpgradeZone, inputSystem, pubSubSystem);
+    }
+
+    if (IsKeyDown(KEY_Q)) {
+      move(KEY_Q, isInUpgradeZone, inputSystem, pubSubSystem);
+    }
+
+    camera.target = (Vector2){ballPosition.x + 20, ballPosition.y + 20};
     // draw
     BeginDrawing();
+    BeginMode2D(camera);
 
     ClearBackground(RAYWHITE);
 
@@ -84,13 +125,24 @@ void gameLoop(Vector2 &ballPosition, Rectangle &upgradeStation,
     // draw character
     DrawCircleV(ballPosition, 50, MAROON);
 
-    DrawRectangle(600, 250, 20, 20, GREEN);
+    // draw safe zone
+    DrawRectangleLines(300, 100, 1800, 1000, BLACK);
+
+    // upgrading player stats
+    DrawRectangle(600, 250, 40, 40, GREEN);     // health
+    DrawRectangle(650, 250, 40, 40, LIGHTGRAY); // armor
+    DrawRectangle(700, 250, 40, 40, YELLOW);    // speed
+    DrawRectangle(750, 250, 40, 40, RED);       // damage
+    EndMode2D();
     EndDrawing();
   }
   CloseWindow();
 }
 
 int main() {
+  // Camera
+  Camera2D camera = {0};
+
   Vector2 ballPosition;
   Rectangle upgradeStation = {600, 250, 20, 20};
 
@@ -100,8 +152,8 @@ int main() {
   PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
   pubSubSystemSetup(pubSubSystem, ballPosition);
 
-  gameSetup(ballPosition);
-  gameLoop(ballPosition, upgradeStation, inputSystem, pubSubSystem);
+  gameSetup(camera, ballPosition);
+  gameLoop(camera, ballPosition, upgradeStation, inputSystem, pubSubSystem);
 
   return 0;
 }

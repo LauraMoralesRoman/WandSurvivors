@@ -1,12 +1,11 @@
 #pragma once
+#include "Player.hpp"
 
-#include "UpgradeStation.hpp"
-
-class UpgradePlayerStats : public UpgradeStation {
+class UpgradePlayerStats {
 public:
-  void upgradeHealth(Player &player) override;
+  virtual void upgradeHealth(Player &player) const = 0;
 
-  void upgradeSpeed(Player &player) override;
+  virtual void upgradeSpeed(Player &player) const = 0;
 
-  void upgradeArmor(Player &player) override;
+  virtual void upgradeArmor(Player &player) const = 0;
 };
