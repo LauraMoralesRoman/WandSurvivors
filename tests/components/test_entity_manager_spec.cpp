@@ -4,8 +4,10 @@
 #include "components/test_component.hpp"
 #include "defs.hpp"
 #include "resources.hpp"
+#include "utils/type_map.hpp"
 #include <gtest/gtest.h>
 #include <memory>
+#include <string>
 
 class ComponentsTest : public ::testing::Test {
 	protected:
@@ -57,18 +59,17 @@ TEST_F(ComponentsTest, RemoveMultipleEntities) {
 	ASSERT_EQ(num_deleted, to_create / 2);
 }
 
-template<typename T = void>
-struct Mapping;
+decltype(auto) mapping() {
+	core::utils::TypeMap<std::string> map;
+	map.set<GameObject>(resource_path("build/components/libbasic_module.so"));
+	return map;
+}
 
-template<>
-struct Mapping<void> {};
-
-template<>
-struct Mapping<GameObject> {
-	static core::components::LoadResult<GameObject> value() {
-		return core::components::load_module<GameObject>(resource_path("build/components/libbasic_module.so"));
-	}
-};
+decltype(auto) invalid_mapping() {
+	core::utils::TypeMap<std::string> map;
+	map.set<GameObject>("Invalid path");
+	return map;
+}
 
 template<typename T = void>
 struct InvalidMapping {};
@@ -81,14 +82,14 @@ struct InvalidMapping<GameObject> {
 };
 
 TEST_F(ComponentsTest, EntityManager) {
-	core::components::EntityManager<GameObject> manager(Mapping{});
+	core::components::EntityManager<GameObject> manager(mapping());
 
 	auto instance = manager.instantiate<GameObject>();
 	ASSERT_NE(instance, nullptr);
 }
 
 TEST_F(ComponentsTest, FailedLoadEntityManager) {
-	core::components::EntityManager<GameObject> manager(InvalidMapping{});
+	core::components::EntityManager<GameObject> manager(invalid_mapping());
 	
 	auto instance = manager.instantiate<GameObject>();
 	ASSERT_EQ(instance, nullptr);

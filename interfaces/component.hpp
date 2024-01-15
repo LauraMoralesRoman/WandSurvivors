@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/type_map.hpp"
 using VTable = int*;
 
 class Component {

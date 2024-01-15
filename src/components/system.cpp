@@ -1,17 +1,10 @@
 #include "system.hpp"
-#include "utils/metafunctions.hpp"
 #include <algorithm>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
 #include <inotifytools/inotifytools.h>
-
-void core::components::GameEntityManager::remove_marked() {
-	metafunc::for_each_in_tuple(self->specific_managers, [](auto& manager) {
-		manager.remove_marked();
-	});
-}
 
 namespace metafunc {
 	template<typename F, class List>
@@ -99,12 +92,4 @@ namespace metafunc {
 	constexpr decltype(auto) type_function_map(const auto& func) {
 		return TypeFunctionMapping<decltype(func), List>{std::move(func)}.result;
 	}
-}
-
-core::components::GameEntityManager::GameEntityManager() 
-	: BaseType(EntityModules{}) {
-	
-	// Generate observers
-	auto result = ::metafunc::type_function_map<std::tuple<int, float>>([]<typename T>() {
-	});
 }

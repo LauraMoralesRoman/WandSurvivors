@@ -2,14 +2,11 @@
 
 #include "components/manager.hpp"
 #include "utils/metafunctions.hpp"
+#include "utils/type_map.hpp"
 #include <string>
 #include <type_traits>
 
 namespace core::components {
-
-	using GameEntities = metafunc::TypeList<
-		// Add Game Entities here
-	>;
 
 	namespace meta {
 		template<typename, typename T>
@@ -27,51 +24,33 @@ namespace core::components {
 		inline constexpr bool complete_go_mapping_coverage_v = complete_go_mapping_coverage<Types...>::type;
 	}
 
-	// Type Mapping
-	template<typename T = void>
-	struct EntityModules {};
-
-	#define ENTRY(entity, path) \
-	template<> struct EntityModules<entity> { \
-		static_assert(metafunc::is_in_list_v<entity, GameEntities>); \
-		static const std::string value() { return path; } \
-	}
-
-	// ENTRY(Test, "path/to/mod.so"); // Example of key-value maping
-	#undef ENTRY
-
-	static_assert(metafunc::ApplyListToType<
-				GameEntities, 
-				meta::complete_go_mapping_coverage
-			>::type::value,
-			"The type mapping should contain paths for all keys");
-
 	///////////////////
 	// Entity manager / 
 	///////////////////
-	/// I could pass this manager the GameObjects Type list but I don't wanna
+	template<typename GameEntities>
 	using BaseType = metafunc::ApplyListToType<GameEntities, EntityManager>::type;
+
+	template<typename GameEntities>
 	class GameEntityManager 
-		: public BaseType
+		: public BaseType<GameEntities>
 	{
 		public:
-			GameEntityManager();
+			GameEntityManager(const utils::TypeMap<std::string>& module_map) 
+				: BaseType<GameEntities>(module_map) {
 
-			void remove_marked();
+			}
+
+			void remove_marked() {
+				metafunc::for_each_in_tuple(self->specific_managers, [](auto& manager) {
+					manager.remove_marked();
+				});
+			}
+
 			void reload_all();
 
 			template<typename T>
 			void reload() {
 				std::get<T>(self->specific_managers).reload();
 			}
-	};
-
-	// I hate that C++ doesn't have modules yet and I have to create a class for this
-	class GameComponentSystem {
-		public:
-			GameComponentSystem();
-
-		private:
-			GameEntityManager manager;
 	};
 }

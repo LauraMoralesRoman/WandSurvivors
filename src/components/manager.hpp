@@ -6,8 +6,11 @@
 #include "result.hpp"
 #include "spdlog/spdlog.h"
 #include "utils/metafunctions.hpp"
+#include "utils/type_map.hpp"
 
 #include <algorithm>
+#include <format>
+#include <string>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -74,9 +77,8 @@ namespace core::components {
 	template<typename... ModTypes>
 	class EntityManager {
 		public:
-			template<template<typename> class TypeToModuleRes>
-			EntityManager(const TypeToModuleRes<void>&&) 
-				: specific_managers(create_specific_managers<TypeToModuleRes>()) {
+			EntityManager(const utils::TypeMap<std::string>& module_map) 
+				: specific_managers(create_specific_managers(module_map)) {
 			}
 
 			template<typename T>
@@ -97,21 +99,23 @@ namespace core::components {
 			metafunc::TransformTuple<std::tuple<ModTypes...>, metafunctions::WrapEntitySpecificManagerMorph>::type specific_managers;
 		private:
 
-			template<template <typename> class TypeToModuleRes>
-			static auto create_specific_managers() {
+			static auto create_specific_managers(const utils::TypeMap<std::string>& module_map) {
 				return std::make_tuple(
-					create_manager<ModTypes, TypeToModuleRes>()...
+					create_manager<ModTypes>(module_map.get<ModTypes>())...
 				);
 			}
 
-			template<typename ModType, template <typename> class TypeToModuleRes>
-			static auto create_manager() {
-				static_assert(std::is_same_v<decltype(TypeToModuleRes<ModType>::value()), core::components::LoadResult<ModType>>,
-							  "TypeToModuleRes does not return the expected type");
-
-				return EntitySpecificManager<ModType>::create(
-					TypeToModuleRes<ModType>::value()
-				);
+			template<typename ModType>
+			static auto create_manager(const utils::TypeMap<std::string>::Result& res) {
+				if (res.has_value()) {
+					return EntitySpecificManager<ModType>::create(
+								load_module<ModType>(res.value())
+							);
+				} else {
+					return EntitySpecificManager<ModType>::create({InvalidFileError{ 
+						std::format("The specified Entity Type does not have a module associated")
+					}});
+				}
 			}
 	};
 }
