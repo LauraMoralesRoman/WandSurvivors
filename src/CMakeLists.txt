@@ -4,13 +4,13 @@ cmake_minimum_required(VERSION 3.10)
 project(MyProject)
 
 # Define a list of libraries
-set(MY_PROJECT_LIBRARIES
+set(PROJECT_LIBRARIES
     libraylib.so
     libspdlog.a
 )
 
 # Prepend the library directory path to each library in the list
-list(TRANSFORM MY_PROJECT_LIBRARIES PREPEND "${CMAKE_SOURCE_DIR}/lib/")
+list(TRANSFORM PROJECT_LIBRARIES PREPEND "${CMAKE_SOURCE_DIR}/lib/")
 
 # Recursively find all .cpp and .hpp files in the source directory
 file(GLOB_RECURSE PROJECT_SOURCES "./*.cpp")
@@ -22,6 +22,7 @@ list(FILTER CORE_SOURCES EXCLUDE REGEX ".*main\\.cpp$")
 
 # Create a core library
 add_library(core_lib ${CORE_SOURCES} ${PROJECT_HEADERS})
+target_link_libraries(core_lib ${PROJECT_LIBRARIES})
 # Optionally set properties for the core library
 # set_target_properties(core_lib PROPERTIES ...)
 
@@ -34,7 +35,7 @@ foreach(SOURCE ${PROJECT_SOURCES})
 endforeach()
 
 # Link the libraries from the list
-target_link_libraries(${CMAKE_PROJECT_NAME} ${MY_PROJECT_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME} ${PROJECT_LIBRARIES})
 
 # Custom target for running
 add_custom_target(run
