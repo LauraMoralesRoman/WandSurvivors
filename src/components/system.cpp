@@ -4,8 +4,6 @@
 #include <type_traits>
 #include <utility>
 
-#include <inotifytools/inotifytools.h>
-
 namespace metafunc {
 	template<typename F, class List>
 	struct TypeFunctionMapping;
