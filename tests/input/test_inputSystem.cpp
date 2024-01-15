@@ -1,32 +1,38 @@
 #include "input_manager/InputSystem.hpp"
+
+#include "../include/raylib.h"
 #include "gtest/gtest.h"
 
 TEST(InputSystemTest, MapKeyToActionTest) {
-  InputSystem inputSystem;
+  auto &input = input_manager::inputSystem::InputSystem::getInstance();
 
   // key is mapped
-  inputSystem.mapKeyToAction(SDLK_a, ActionType::MOVE_RIGHT);
+  input.mapKeyToAction(KEY_A,
+                       input_manager::inputSystem::ActionType::MOVE_RIGHT);
 
-  EXPECT_EQ(inputSystem.isActionMapped(ActionType::MOVE_RIGHT), true);
+  EXPECT_EQ(
+      input.isActionMapped(input_manager::inputSystem::ActionType::MOVE_RIGHT),
+      true);
 }
 
 // expected behaviour
 TEST(InputSystemTest, PressMappedKeyTest) {
-  InputSystem inputSystem;
+  auto &input = input_manager::inputSystem::InputSystem::getInstance();
 
-  inputSystem.mapKeyToAction(SDLK_d, ActionType::MOVE_RIGHT);
+  input.mapKeyToAction(KEY_D,
+                       input_manager::inputSystem::ActionType::MOVE_RIGHT);
 
-  auto result = inputSystem.pressKey(SDLK_d);
+  auto result = input.pressKey(KEY_D);
 
   EXPECT_TRUE(result.valid());
-  EXPECT_EQ(result.value(), ActionType::MOVE_RIGHT);
+  EXPECT_EQ(result.value(), input_manager::inputSystem::ActionType::MOVE_RIGHT);
 }
 
 // intentional fail test
 TEST(InputSystemTest, PressUnmappedKeyTest_Fail) {
-  InputSystem inputSystem;
+  auto &input = input_manager::inputSystem::InputSystem::getInstance();
 
-  auto result = inputSystem.pressKey(SDLK_b);
+  auto result = input.pressKey(KEY_B);
 
   EXPECT_FALSE(result.valid());
   EXPECT_EQ(result.error(), "Key not mapped");
