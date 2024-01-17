@@ -32,6 +32,7 @@ namespace core::resources {
 	class Texture {
 		public:
 			Texture(const std::string& path);
+			~Texture();
 
 			static const std::filesystem::path location;
 			static const std::filesystem::path default_path;

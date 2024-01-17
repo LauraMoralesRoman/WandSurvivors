@@ -25,6 +25,10 @@ core::resources::Texture::Texture(const std::string& path)
 	: texture(LoadTexture(path.c_str())) {
 }
 
+core::resources::Texture::~Texture() {
+	UnloadTexture(this->texture);
+}
+
 bool core::resources::Texture::valid() const {
 	return this->texture.id != 0;
 }
