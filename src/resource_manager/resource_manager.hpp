@@ -2,10 +2,14 @@
 #include "raylib.h"
 #include <functional>
 #include <future>
+#include <optional>
 #include <string>
 
 #include <filesystem>
 #include <type_traits>
+#include <unordered_map>
+#include <utility>
+#include <variant>
 #include <vector>
 
 
@@ -45,10 +49,18 @@ namespace core::resources {
 	template<Resource Base>
 	class AsyncResource {
 		public:
-			AsyncResource(const std::string&& path);
-			operator Base();
+			AsyncResource(const std::string& path);
+			explicit operator Base&();
+			const Base& get() const;
 
 		private:
-			std::future<Base> loaded_resource;
+			using AsyncResponse = std::shared_future<Base>;
+			Base* loaded_resource = nullptr;
+			static std::unordered_map<
+				std::string, AsyncResponse
+			> cached_resources{};
+			std::string path;
+
+			bool check_cache_hit();
 	};
 }

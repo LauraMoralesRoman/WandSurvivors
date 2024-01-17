@@ -3,7 +3,9 @@
 #include "raylib.h"
 #include <algorithm>
 #include <future>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace rg = std::ranges;
@@ -47,20 +49,45 @@ std::filesystem::path core::resources::get_resource_location_base(std::string ba
 // Async resource manager
 // ======================
 template<core::resources::Resource Base>
-core::resources::AsyncResource<Base>::AsyncResource(const std::string&& path) {
-	this->loaded_resource = std::async([&]() {
-		return Base(path);
-	});
+core::resources::AsyncResource<Base>::AsyncResource(const std::string& path)
+	: path(path) {
+	// Check if the resource has been asked for before
+	if (!check_cache_hit()) {
+		auto res_future = std::async([&]() {
+			return Base(path);
+		});
+		this->cached_resources.insert({
+			path,
+			res_future.share()
+		});
+	}
 };
 
 template<core::resources::Resource Base>
-core::resources::AsyncResource<Base>::operator Base() {
-	if (this->loaded_resource.valid() && this->loaded_resource.get().valid()) {
-		return this->loaded_resource.get();
+core::resources::AsyncResource<Base>::operator Base&() {
+	if (this->loaded_resource != nullptr) {
+		return *loaded_resource;
 	} else {
-		return Base::default_resource;
+		if (check_cache_hit() && this->loaded_resource != nullptr) { // Shouldn't be nullptr anymore
+			return *this->loaded_resource;
+		} else {
+			return Base::default_resource;
+		}
 	}
 }
 
-template class core::resources::AsyncResource<core::resources::Texture>;
+template<core::resources::Resource Base>
+bool core::resources::AsyncResource<Base>::check_cache_hit() {
+	auto& iter = this->cached_resources.find(this->path);
+	if (iter != this->cached_resources.end()) { // Found
+		auto& [key, resource] = *iter;
+		if (resource.valid()) {
+			this->loaded_resource = &resource.get();
+		}
+		return true;
+	}
+	return false;
+}
+
+template<> class core::resources::AsyncResource<core::resources::Texture>;
 // template class core::resources::AsyncResource<core::resources::Audio>;
