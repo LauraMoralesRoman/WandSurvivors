@@ -6,14 +6,14 @@ public:
       : health(initialHealth), armor(initialArmor), speed(initialSpeed) {}
 
   // getters and setters
-  float getHealth() const;
-  void setHealth(float newHealth);
+  float getHealth() const { return health; }
+  void setHealth(float newHealth) { health = newHealth; }
 
-  float getArmor() const;
-  void setArmor(float newArmor);
+  float getArmor() const { return armor; }
+  void setArmor(float newArmor) { armor = newArmor; }
 
-  float getSpeed() const;
-  void setSpeed(float newSpeed);
+  float getSpeed() const { return speed; }
+  void setSpeed(float newSpeed) { speed = newSpeed; }
 
 private:
   float health;

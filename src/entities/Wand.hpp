@@ -3,13 +3,15 @@
 #include "WandStat.hpp"
 class Wand {
 public:
-  Wand(WandStat initialStats) : stats(initialStats) {}
+  Wand(int initialWandId, WandStat initialStats)
+      : wandId(initialWandId), stats(initialStats) {}
 
   WandStat getWandStats() const;
   void setWandStats(WandStat newStats);
 
+  bool operator==(const Wand &other) const { return wandId == other.wandId; }
+
 private:
+  int wandId;
   WandStat stats;
-  // TODO: vector<spells>
-  // TODO: vector<group>
 };
