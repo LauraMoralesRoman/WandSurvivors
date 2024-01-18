@@ -72,7 +72,7 @@ core::resources::AsyncResource<Base>::operator Base&() {
 	if (this->loaded_resource != nullptr) {
 		return *loaded_resource;
 	} else {
-		if (check_cache_hit() && this->loaded_resource != nullptr) { // Shouldn't be nullptr anymore
+		if (check_cache_hit() && this->loaded_resource != nullptr) {
 			return *this->loaded_resource;
 		} else {
 			return Base::default_resource;
@@ -84,6 +84,7 @@ template<core::resources::Resource Base>
 bool core::resources::AsyncResource<Base>::check_cache_hit() {
 	auto& iter = this->cached_resources.find(this->path);
 	if (iter != this->cached_resources.end()) { // Found
+		// Update internal reference to cached value if loaded
 		auto& [key, resource] = *iter;
 		if (resource.valid()) {
 			this->loaded_resource = &resource.get();

@@ -2,14 +2,11 @@
 #include "raylib.h"
 #include <functional>
 #include <future>
-#include <optional>
 #include <string>
 
 #include <filesystem>
 #include <type_traits>
 #include <unordered_map>
-#include <utility>
-#include <variant>
 #include <vector>
 
 
