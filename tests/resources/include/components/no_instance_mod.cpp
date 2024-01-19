@@ -1,10 +1,10 @@
 #include "test_component.hpp"
 
-void GameObject::start() {
+void GameObject::start(game::Context& ctx) {
 
 }
 
-void GameObject::update() {
+void GameObject::update(game::Context& ctx) {
 
 }
 

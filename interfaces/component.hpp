@@ -1,12 +1,12 @@
 #pragma once
 
-#include "utils/type_map.hpp"
+#include "gameContext.hpp"
 using VTable = int*;
 
 class Component {
 	public:
-		virtual void update() = 0;
-		virtual void start() = 0;
+		virtual void update(game::Context& ctx) = 0;
+		virtual void start(game::Context& ctx) = 0;
 		virtual ~Component() {}
 };
 

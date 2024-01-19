@@ -1,4 +1,9 @@
 #include "InputSystem.hpp"
+#include "raylib.h"
+#include <algorithm>
+#include <iterator>
+#include <ranges>
+#include <vector>
 
 namespace input_manager::inputSystem {
 
@@ -34,7 +39,7 @@ InputSystem::FunCheckMapErr InputSystem::pressKey(int key) {
   auto it = keyMappings.find(key);
 
   if (it != keyMappings.end()) {
-    return FunCheckMapErr(it->second);
+    return ActionType{it->second};
   }
 
   else {
@@ -42,3 +47,13 @@ InputSystem::FunCheckMapErr InputSystem::pressKey(int key) {
   }
 }
 } // namespace input_manager::inputSystem
+//
+const std::vector<KeyboardKey> input_manager::inputSystem::InputSystem::getMappedKeys() const {
+	std::vector<KeyboardKey> output;
+	auto keys = this->keyMappings 
+		| std::ranges::views::keys
+		| std::ranges::views::transform([](const auto& elem) { return static_cast<KeyboardKey>(elem); });
+
+	std::copy(keys.begin(), keys.end(), std::back_inserter(output));
+	return output;
+}

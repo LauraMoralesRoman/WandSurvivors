@@ -33,10 +33,9 @@ void PubSubSystem::subscribe(inputSystem::ActionType action,
 }
 
 void PubSubSystem::publish(inputSystem::ActionType action) {
-  auto &instance = getInstance();
-  auto it = instance.topics.find(action);
+  auto it = this->topics.find(action);
 
-  if (it != instance.topics.end() && !instance.muted) {
+  if (it != this->topics.end() && !this->muted) {
     auto &vect = it->second;
 
     for (const auto &func : vect) {

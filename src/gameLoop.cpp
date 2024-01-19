@@ -1,58 +1,49 @@
 #include "gameLoop.hpp"
-#include <iostream>
+#include "entities/Player.hpp"
+#include "entities/PlayerStat.hpp"
+#include "entities/Wand.hpp"
+#include "entities/WandStat.hpp"
+#include "gameContext.hpp"
+#include "gameSetup.hpp"
+#include "input_manager/InputSystem.hpp"
+#include "input_manager/PubSubSystem.hpp"
+#include "raylib.h"
+#include <vector>
 
 namespace gameloop {
 
-void upgrade(Player &player, int upgradeStation) {
-  switch (upgradeStation) {
-  case 1: // upgrade health
-    std::cout << player.getPlayerStats().getHealth() << std::endl;
-    player.upgradeHealth();
-    std::cout << player.getPlayerStats().getHealth() << std::endl;
-    break;
-
-  case 2: // upgrade armor
-    std::cout << player.getPlayerStats().getArmor() << std::endl;
-    player.upgradeArmor();
-    std::cout << player.getPlayerStats().getArmor() << std::endl;
-    break;
-
-  case 3: // upgrade speed
-    std::cout << player.getPlayerStats().getSpeed() << std::endl;
-    player.upgradeSpeed();
-    std::cout << player.getPlayerStats().getSpeed() << std::endl;
-    break;
-
-  case 4:
-    std::cout << "Mejorado el daño" << std::endl;
-    break;
-  }
-}
-
-void move(int key, int upgradeStation, InputSystem &inputSystem,
-          PubSubSystem &pubSubSystem, Player &player) {
-
-  auto result = inputSystem.pressKey(key);
-
-  if (result.valid()) {
-    auto action = result.value();
-    if (action == ActionType::INTERACT) {
-      // pubSubSystem.mute();
-      upgrade(player, upgradeStation);
-    }
-    if (action == ActionType::QUIT) {
-      // pubSubSystem.unmute();
-    }
-    pubSubSystem.publish(action);
-  }
-}
-
-void gameLoop(Camera2D &camera, Player &player,
-              structures::GameStructures &gameStructures,
-              InputSystem &inputSystem, PubSubSystem &pubSubSystem) {
+void gameLoop(game::Context& ctx) {
 
   std::vector<bool> upgradeStationsCollisions = {false, false, false, false};
   int upgradeStation = -1;
+
+  Vector2 initialPlayerPosition = {
+			.x = (float)gameSetup::screenWidth / 2,
+			.y = (float)gameSetup::screenHeight / 2
+	};
+
+  // initialize objects
+  // player
+  PlayerStat playerInitialStats(10.0f, 5.0f, 2.0f);
+  WandStat basicWandStats(3.0f, WandType::FIRE);
+  Wand fireWand(1, basicWandStats);
+  std::vector<Wand> initialWands = {fireWand};
+
+	Player player;
+	player
+		.setActualPosition(initialPlayerPosition)
+		.setWands(initialWands)
+		.setStats(playerInitialStats);
+
+	player.start(ctx);
+
+	// Systems
+	auto& gameStructures = structures::GameStructures::getInstance();
+	auto& inputSystem = input_manager::inputSystem::InputSystem::getInstance();
+	auto& pubsubSystem = input_manager::pubSub::PubSubSystem::getInstance();
+
+	// Get mapped keys
+	auto mappedKeys = inputSystem.getMappedKeys();
 
   while (!WindowShouldClose()) {
     Vector2 playerPosition = player.getActualPosition();
@@ -69,36 +60,20 @@ void gameLoop(Camera2D &camera, Player &player,
       }
     }
 
-    // update
-    // movement
-    if (IsKeyDown(KEY_A)) {
-      move(KEY_A, upgradeStation, inputSystem, pubSubSystem, player);
-    }
+		for (const auto& key : mappedKeys) {
+			if (IsKeyDown(key)) {
+				const auto& mappedActionRes = inputSystem.pressKey(key);
+				if (mappedActionRes.valid()) {
+					// Send notification to pubsub system
+					pubsubSystem.publish(mappedActionRes.value());
+				}
+			}
+		}
 
-    if (IsKeyDown(KEY_D)) {
-      move(KEY_D, upgradeStation, inputSystem, pubSubSystem, player);
-    }
-
-    if (IsKeyDown(KEY_W)) {
-      move(KEY_W, upgradeStation, inputSystem, pubSubSystem, player);
-    }
-
-    if (IsKeyDown(KEY_S)) {
-      move(KEY_S, upgradeStation, inputSystem, pubSubSystem, player);
-    }
-
-    if (IsKeyDown(KEY_E)) {
-      move(KEY_E, upgradeStation, inputSystem, pubSubSystem, player);
-    }
-
-    if (IsKeyDown(KEY_Q)) {
-      move(KEY_Q, upgradeStation, inputSystem, pubSubSystem, player);
-    }
-
-    camera.target = (Vector2){playerPosition.x + 20, playerPosition.y + 20};
+    ctx.camera.target = (Vector2){playerPosition.x + 20, playerPosition.y + 20};
     // draw
     BeginDrawing();
-    BeginMode2D(camera);
+    BeginMode2D(ctx.camera);
 
     ClearBackground(RAYWHITE);
 

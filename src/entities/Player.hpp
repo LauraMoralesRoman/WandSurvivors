@@ -1,58 +1,40 @@
 #include "../../include/raylib.h"
-#include "PlayerInputHandler.hpp"
 #include "PlayerStat.hpp"
 #include "UpgradePlayerStats.hpp"
 #include "Wand.hpp"
-#include <list>
+#include "component.hpp"
+#include <vector>
 #pragma once
 
-class Player : public PlayerInputHandler, public UpgradePlayerStats {
+class Player : 
+	virtual public UpgradePlayerStats,
+	virtual public Component
+{
 public:
-  Player(Vector2 initialPosition, PlayerStat initialStats,
-         std::list<Wand> initialWands)
-      : actualPosition(initialPosition), stats(initialStats),
-        wands(initialWands) {}
+	Player() = default;
 
-  Vector2 getActualPosition() const;
-  void setActualPosition(Vector2 newPosition);
+	Vector2 getActualPosition() const;
+	Player& setActualPosition(Vector2 newPosition);
 
-  PlayerStat getPlayerStats() const;
+	Player& setStats(const PlayerStat& stats );
+	const PlayerStat& getPlayerStats() const;
 
-  // upgrade stats
-  void upgradeHealth() override {
-    stats.setHealth(getPlayerStats().getHealth() + 5.0f);
-  }
+	// upgrade stats
+	void upgradeHealth() override; 
+	void upgradeArmor() override; 
+	void upgradeSpeed() override; 
 
-  void upgradeArmor() override {
-    stats.setArmor(getPlayerStats().getArmor() + 5.0f);
-  }
-
-  void upgradeSpeed() override {
-    stats.setSpeed(getPlayerStats().getSpeed() + 0.5f);
-  }
-
-  std::list<Wand> getPlayerWands() const;
-  void addNewWand(Wand &wand);
-  void deleteWand(Wand &wand);
-
-  // pubsub
-  void subscribe(ActionType action, PubSubSystem::Callback callBack) override {
-    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
-    pubSubSystem.subscribe(action, callBack);
-  }
-
-  void mute() override {
-    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
-    pubSubSystem.mute();
-  }
-
-  void unmute() override {
-    PubSubSystem &pubSubSystem = PubSubSystem::getInstance();
-    pubSubSystem.unmute();
-  }
+	const std::vector<Wand>& getPlayerWands() const;
+	void addNewWand(const Wand &wand);
+	void deleteWand(const Wand &wand);
+	Player& setWands(const std::vector<Wand>& wands);
+	
+	// Component system
+	void update(game::Context &ctx) override;
+	void start(game::Context &ctx) override;
 
 private:
-  Vector2 actualPosition;
-  PlayerStat stats;
-  std::list<Wand> wands;
+	Vector2 actualPosition;
+	PlayerStat stats;
+	std::vector<Wand> wands{};
 };

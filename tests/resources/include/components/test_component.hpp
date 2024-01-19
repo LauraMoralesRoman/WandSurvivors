@@ -4,8 +4,8 @@
 
 class GameObject : public virtual Component {
 	public:
-		virtual void update() override;
-		virtual void start() override;
+		void update(game::Context &ctx) override;
+		void start(game::Context &ctx) override;
 		virtual int foo(int a, int b);
 		virtual ~GameObject() {}
 
