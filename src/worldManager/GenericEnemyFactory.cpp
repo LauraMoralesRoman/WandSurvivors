@@ -1,5 +1,8 @@
 #include "GenericEnemyFactory.hpp"
 
-EnemyPrototype *GenericEnemyFactory::createEnemyPrototype() const {
-  return new GenericEnemy();
+std::shared_ptr<EnemyPrototype>
+GenericEnemyFactory::createEnemyPrototype() const {
+
+  std::shared_ptr<EnemyPrototype> prototype = std::make_shared<GenericEnemy>();
+  return prototype;
 }

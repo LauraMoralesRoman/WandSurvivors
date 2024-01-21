@@ -12,6 +12,7 @@
 #include "worldManager/GenericEnemyFactory.hpp"
 #include "worldManager/WorldElementFactory.hpp"
 #include <iostream>
+#include <memory>
 #include <vector>
 
 #include <cstdlib>
@@ -25,7 +26,7 @@ void gameLoop(game::Context &ctx) {
 
   bool isSpellCasting = false;
 
-  std::vector<GenericEnemy *> enemies;
+  std::vector<std::shared_ptr<GenericEnemy>> enemies;
   const int maxEnemies = 5;
 
   std::vector<bool> upgradeStationsCollisions = {false, false, false, false};
@@ -38,7 +39,7 @@ void gameLoop(game::Context &ctx) {
   Spell spell;
   // player
   PlayerStat playerInitialStats(10.0f, 5.0f, 2.0f);
-  WandStat basicWandStats(3.0f, WandType::FIRE);
+  WandStat basicWandStats(7.5f, WandType::FIRE);
   Wand fireWand(1, basicWandStats, spell);
   std::vector<Wand> initialWands = {fireWand};
 
@@ -48,7 +49,7 @@ void gameLoop(game::Context &ctx) {
       .setStats(playerInitialStats);
 
   player.start(ctx);
-
+  bool alive = true;
   // Systems
   auto &gameStructures = structures::GameStructures::getInstance();
   auto &inputSystem = input_manager::inputSystem::InputSystem::getInstance();
@@ -56,13 +57,14 @@ void gameLoop(game::Context &ctx) {
 
   // ENEMY SPAWN
   GenericEnemyFactory genericEnemySpawner;
-  EnemyPrototype *genericPrototype = genericEnemySpawner.createEnemyPrototype();
+  std::shared_ptr<EnemyPrototype> genericPrototype =
+      genericEnemySpawner.createEnemyPrototype();
 
   // Get mapped keys
   auto mappedKeys = inputSystem.getMappedKeys();
 
   // loop
-  while (!WindowShouldClose()) {
+  while (!WindowShouldClose() && alive) {
     Vector2 playerPosition = player.getActualPosition();
 
     // upgrade stations collisions
@@ -85,12 +87,9 @@ void gameLoop(game::Context &ctx) {
       float newX = std::rand() % 301;
       float newY = std::rand() % 451;
       Vector2 enemyPosition = {newX, newY};
-      GenericEnemy *enemy =
-          dynamic_cast<GenericEnemy *>(genericPrototype->clone());
+      auto enemy = std::make_shared<GenericEnemy>(
+          *std::dynamic_pointer_cast<GenericEnemy>(genericPrototype->clone()));
       enemy->setPosition(enemyPosition);
-      std::cout << "Generated enemy: " << enemy
-                << "With coordenates:" << enemy->getPosition().x
-                << enemy->getPosition().y << std::endl;
       enemies.push_back(enemy);
     }
 
@@ -115,6 +114,10 @@ void gameLoop(game::Context &ctx) {
       player.upgradeSpeed();
       std::cout << player.getPlayerStats().speed << std::endl;
       break;
+    }
+
+    for (auto &enemy : enemies) {
+      enemy->move(player);
     }
 
     //
@@ -143,17 +146,40 @@ void gameLoop(game::Context &ctx) {
     // Update spell
     //
     //
-    //
-    if (isSpellCasting) {
+
+    if (isSpellCasting)
       player.getPlayerWands().at(0).getSpell().update();
-      std::cout << "posicion x:"
-                << player.getPlayerWands().at(0).getSpell().getPosition().x
-                << std::endl;
-      std::cout << "posicion y:"
-                << player.getPlayerWands().at(0).getSpell().getPosition().y
-                << std::endl;
+
+    // check enemy damage
+    for (const auto &enemy : enemies) {
+      if (CheckCollisionCircles(player.getActualPosition(), 50,
+                                enemy->getPosition(), 20)) {
+        float damage = enemy->makeDamage();
+        player.takeDamage(damage);
+      }
     }
+
+    if (player.getPlayerStats().health < 0.0f) {
+      alive = false;
+    }
+    // check player damage
     //
+
+    for (const auto &enemy : enemies) {
+      if (CheckCollisionCircles(
+              enemy->getPosition(), 20,
+              player.getPlayerWands().at(0).getSpell().getPosition(), 15)) {
+        float damage = player.makeDamage();
+        enemy->takeDamage(damage);
+      }
+    }
+
+    enemies.erase(
+        std::remove_if(enemies.begin(), enemies.end(),
+                       [](const std::shared_ptr<GenericEnemy> &enemy) {
+                         return enemy->getStats().health <= 0;
+                       }),
+        enemies.end());
     //
     //
     // CAMERA
@@ -162,7 +188,7 @@ void gameLoop(game::Context &ctx) {
     //
 
     ctx.camera.target = (Vector2){playerPosition.x + 20, playerPosition.y + 20};
-    //
+
     //
     //
     // DRAW
@@ -191,8 +217,6 @@ void gameLoop(game::Context &ctx) {
     player.getPlayerWands().at(0).getSpell().drawSpell();
 
     for (const auto &enemy : enemies) {
-      std::cout << "Enemy coordinates: (" << enemy->getPosition().x << ", "
-                << enemy->getPosition().y << ")" << std::endl;
       enemy->draw();
     }
 
@@ -200,9 +224,5 @@ void gameLoop(game::Context &ctx) {
     EndDrawing();
   }
   CloseWindow();
-
-  for (GenericEnemy *enemy : enemies) {
-    delete enemy;
-  }
 }
 } // namespace gameloop

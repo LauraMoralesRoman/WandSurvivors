@@ -4,5 +4,5 @@
 #include "WorldElementFactory.hpp"
 class GenericEnemyFactory : public WorldElementFactory {
 public:
-  EnemyPrototype *createEnemyPrototype() const override;
+  std::shared_ptr<EnemyPrototype> createEnemyPrototype() const override;
 };

@@ -9,7 +9,7 @@ public:
   Wand(int initialWandId, WandStat initialStats, Spell sp)
       : wandId(initialWandId), stats(initialStats), spell(sp) {}
 
-  WandStat &getWandStats();
+  const WandStat &getWandStats() const;
   void setWandStats(WandStat &newStats);
 
   Spell &getSpell();

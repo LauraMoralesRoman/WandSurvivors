@@ -1,4 +1,5 @@
 #include "Player.hpp"
+#include "PlayerStat.hpp"
 #include "entities/PlayerStat.hpp"
 #include "gameContext.hpp"
 #include "input_manager/PubSubSystem.hpp"
@@ -25,8 +26,7 @@ void Player::start(game::Context &ctx) {
                    [this]() { this->actualPosition.x += 10.0f; });
 
   pubsub.subscribe(input_manager::inputSystem::ActionType::ATTACK, [this]() {
-    this->wands.at(0).castSpell(this->wands.at(0).getSpell().getPosition(),
-                                GetMousePosition());
+    this->wands.at(0).castSpell(this->actualPosition, GetMousePosition());
   });
 }
 
@@ -69,3 +69,14 @@ void Player::upgradeHealth() { stats.health += 5.0f; }
 void Player::upgradeArmor() { stats.armor += 2.0f; }
 
 void Player::upgradeSpeed() { stats.speed += 1.0f; }
+
+float Player::makeDamage() const { return wands.at(0).getWandStats().damage; }
+
+void Player::takeDamage(float damage) {
+  std::cout << "Current health: " << stats.health << std::endl;
+
+  float newHealth = stats.health - (damage - stats.armor);
+
+  stats.health = newHealth;
+  std::cout << "New health: " << stats.health << std::endl;
+}

@@ -1,4 +1,5 @@
 #include "../../include/raylib.h"
+#include "AttackInt.hpp"
 #include "PlayerStat.hpp"
 #include "UpgradePlayerStats.hpp"
 #include "Wand.hpp"
@@ -6,7 +7,9 @@
 #include <vector>
 #pragma once
 
-class Player : virtual public UpgradePlayerStats, virtual public Component {
+class Player : virtual public UpgradePlayerStats,
+               virtual public Component,
+               virtual public AttackInt {
 public:
   Player() = default;
 
@@ -29,6 +32,10 @@ public:
   // Component system
   void update(game::Context &ctx) override;
   void start(game::Context &ctx) override;
+
+  // attack interface
+  float makeDamage() const override;
+  void takeDamage(float damage) override;
 
 private:
   Vector2 actualPosition;

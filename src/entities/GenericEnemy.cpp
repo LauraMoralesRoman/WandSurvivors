@@ -2,25 +2,32 @@
 #include "EnemyPrototype.hpp"
 #include <iostream>
 
-void GenericEnemy::attack() const {
-  // TODO attack player
-}
-
 void GenericEnemy::move(Player &player) {
-  // TODO: movimiento hacia el jugador
+  Vector2 playerDirection = player.getActualPosition();
+  Vector2 directionToPlayer =
+      Vector2Normalize(Vector2Subtract(playerDirection, position));
+  Vector2 speed = Vector2Scale(directionToPlayer, 7.0f);
+
+  position = Vector2Add(position, speed);
 }
 
-// it doesnt work with circles idk why
-void GenericEnemy::draw() {
-  // Vector2 v1 = position;
-  // Vector2 v2 = {position.x + 200.0f, position.y};
-  // Vector2 v3 = {position.x + 100.0f, position.y};
-  std::cout << "Drawing the enemy" << std::endl;
-  DrawCircleV(position, 50, ORANGE);
-  // DrawTriangle(v1, v2, v3, BLACK);
+void GenericEnemy::draw() { DrawCircleV(position, 20, ORANGE); }
+
+float GenericEnemy::makeDamage() const { return stats.damage; }
+
+void GenericEnemy::takeDamage(float damage) {
+  float currentHealth = stats.health;
+  float currentArmor = stats.armor;
+
+  std::cout << "Current enemy" << this << "health:" << currentHealth
+            << std::endl;
+  stats.health = currentHealth - (damage - currentArmor);
+  std::cout << "New enemy" << this << "health:" << stats.health << std::endl;
 }
 
-EnemyPrototype *GenericEnemy::clone() const { return new GenericEnemy(*this); }
+std::shared_ptr<EnemyPrototype> GenericEnemy::clone() const {
+  return std::make_shared<GenericEnemy>(*this);
+}
 
 const EnemyStats GenericEnemy::getStats() const { return stats; }
 
