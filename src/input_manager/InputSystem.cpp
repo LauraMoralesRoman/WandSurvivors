@@ -21,10 +21,6 @@ void InputSystem::mapKeyToAction(int key, ActionType action) {
   }
 }
 
-void InputSystem::mapMouseToAction(ActionType action) {
-  actions[action] = false;
-}
-
 bool InputSystem::isActionMapped(ActionType action) const {
   auto it = actions.find(action);
 
@@ -48,12 +44,14 @@ InputSystem::FunCheckMapErr InputSystem::pressKey(int key) {
 }
 } // namespace input_manager::inputSystem
 //
-const std::vector<KeyboardKey> input_manager::inputSystem::InputSystem::getMappedKeys() const {
-	std::vector<KeyboardKey> output;
-	auto keys = this->keyMappings 
-		| std::ranges::views::keys
-		| std::ranges::views::transform([](const auto& elem) { return static_cast<KeyboardKey>(elem); });
+const std::vector<KeyboardKey>
+input_manager::inputSystem::InputSystem::getMappedKeys() const {
+  std::vector<KeyboardKey> output;
+  auto keys = this->keyMappings | std::ranges::views::keys |
+              std::ranges::views::transform([](const auto &elem) {
+                return static_cast<KeyboardKey>(elem);
+              });
 
-	std::copy(keys.begin(), keys.end(), std::back_inserter(output));
-	return output;
+  std::copy(keys.begin(), keys.end(), std::back_inserter(output));
+  return output;
 }

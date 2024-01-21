@@ -1,7 +1,6 @@
 #pragma once
-#include "Player.hpp"
 
 class UpgradeWandStats {
 public:
-  virtual void upgradeDamage(Player &player) const = 0;
+  virtual void upgradeDamage() const = 0;
 };

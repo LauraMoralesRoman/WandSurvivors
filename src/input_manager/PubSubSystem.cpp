@@ -18,9 +18,7 @@ PubSubSystem::getTopic(inputSystem::ActionType action) {
   auto it = topics.find(action);
   if (it != topics.end()) {
     return FunGetTopicErr(it->second);
-  }
-
-  else {
+  } else {
     return FunGetTopicErr("Topic not created");
   }
 }

@@ -5,11 +5,11 @@
 #include <spdlog/spdlog.h>
 
 namespace gameSetup {
-	constexpr unsigned int screenWidth = 900;
-	constexpr unsigned int screenHeight = 600;
+constexpr unsigned int screenWidth = 900;
+constexpr unsigned int screenHeight = 600;
 
-	void initUpgradeStations(game::Context& ctx);
+void initUpgradeStations(game::Context &ctx);
 
-	void setup(game::Context& ctx);
-	void inputSystemSetup();
+void setup(game::Context &ctx);
+void inputSystemSetup();
 } // namespace gameSetup
