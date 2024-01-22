@@ -24,10 +24,6 @@ void Player::start(game::Context &ctx) {
 
   pubsub.subscribe(input_manager::inputSystem::ActionType::MOVE_RIGHT,
                    [this]() { this->actualPosition.x += 10.0f; });
-
-  pubsub.subscribe(input_manager::inputSystem::ActionType::ATTACK, [this]() {
-    this->wands.at(0).castSpell(this->actualPosition, GetMousePosition());
-  });
 }
 
 // /////////////////
@@ -51,7 +47,7 @@ Player &Player::setStats(const PlayerStat &stats) {
   return *this;
 }
 
-const PlayerStat &Player::getPlayerStats() const { return stats; }
+PlayerStat &Player::getPlayerStats() { return stats; }
 std::vector<Wand> &Player::getPlayerWands() { return wands; }
 
 void Player::addNewWand(const Wand &wand) { wands.emplace_back(wand); }
@@ -63,12 +59,6 @@ void Player::deleteWand(const Wand &wand) {
   }
 }
 // void Player::deleteWand(Wand &wand) { wands.remove(wand); }
-
-void Player::upgradeHealth() { stats.health += 5.0f; }
-
-void Player::upgradeArmor() { stats.armor += 2.0f; }
-
-void Player::upgradeSpeed() { stats.speed += 1.0f; }
 
 float Player::makeDamage() const { return wands.at(0).getWandStats().damage; }
 

@@ -6,6 +6,7 @@
 class Enemy : public virtual EnemyPrototype, public virtual AttackInt {
 public:
   virtual void move(Player &player) = 0;
+
   virtual void draw() = 0;
 
   virtual float makeDamage() const override = 0;

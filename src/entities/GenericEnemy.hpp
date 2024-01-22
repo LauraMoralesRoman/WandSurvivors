@@ -1,3 +1,4 @@
+#pragma once
 #include "Enemy.hpp"
 #include "EnemyPrototype.hpp"
 #include "EnemyStats.hpp"
@@ -20,7 +21,11 @@ public:
   const Vector2 getPosition() const;
   void setPosition(Vector2 newPosition);
 
+  const float getRadius() const;
+  void setRadius(float newRadius);
+
 private:
   Vector2 position;
+  float radius = 15.0f;
   EnemyStats stats = {8.0f, 15.0f, 4.0f, 5.0f};
 };

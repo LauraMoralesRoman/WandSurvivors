@@ -1,21 +1,26 @@
 #include "gameSetup.hpp"
+#include "entities/UpgradeShop.hpp"
 #include "gameContext.hpp"
 #include "gameStructures.hpp"
 #include "input_manager/InputSystem.hpp"
 
 namespace gameSetup {
 void initUpgradeStations(game::Context &ctx) {
-  Rectangle upgradeHealthStation = {600, 250, 50, 50};
-  Rectangle upgradeArmorStation = {750, 250, 50, 50};
-  Rectangle upgradeSpeedStation = {900, 250, 50, 50};
-  Rectangle upgradeDamageStation = {1050, 250, 50, 50};
+  UpgradeShop upgradeHealthShop = {Vector2{600, 250}, 50, 50, GREEN};
+  UpgradeShop upgradeArmorShop = {Vector2{750, 250}, 50, 50, YELLOW};
+  UpgradeShop upgradeSpeedShop = {Vector2{900, 250}, 50, 50, BLUE};
+  UpgradeShop upgradeDamageShop = {Vector2{1050, 250}, 50, 50, RED};
 
   auto &gameStructures = structures::GameStructures::getInstance();
 
-  gameStructures.addUpgradeStation(upgradeHealthStation);
-  gameStructures.addUpgradeStation(upgradeArmorStation);
-  gameStructures.addUpgradeStation(upgradeSpeedStation);
-  gameStructures.addUpgradeStation(upgradeDamageStation);
+  gameStructures.addUpgradeStation(
+      std::make_shared<UpgradeShop>(upgradeHealthShop));
+  gameStructures.addUpgradeStation(
+      std::make_shared<UpgradeShop>(upgradeArmorShop));
+  gameStructures.addUpgradeStation(
+      std::make_shared<UpgradeShop>(upgradeSpeedShop));
+  gameStructures.addUpgradeStation(
+      std::make_shared<UpgradeShop>(upgradeDamageShop));
 }
 
 void setup(game::Context &ctx) {

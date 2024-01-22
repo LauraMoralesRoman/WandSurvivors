@@ -1,17 +1,12 @@
 #include "Wand.hpp"
-#include <iostream>
+#include <memory>
 
 const WandStat &Wand::getWandStats() const { return stats; }
 
-Spell &Wand::getSpell() { return spell; }
-
 void Wand::setWandStats(WandStat &newStats) { stats = newStats; }
 
-void Wand::castSpell(Vector2 origin, Vector2 destination) {
-  Vector2 direction = Vector2Subtract(destination, origin);
-  direction = Vector2Normalize(direction);
+std::shared_ptr<Spell> Wand::castSpell(Vector2 origin, Vector2 destination) {
+  Vector2 direction = Vector2Normalize(Vector2Subtract(destination, origin));
 
-  float spellSpeed = 10.0f;
-
-  spell.setSpeed(Vector2Scale(direction, spellSpeed));
+  return std::make_shared<Spell>(origin, direction);
 }

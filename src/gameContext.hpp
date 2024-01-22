@@ -3,7 +3,10 @@
 #include "raylib.h"
 
 namespace game {
-	struct Context {
-		Camera2D camera;
-	};
-}
+struct Context {
+  bool alive;
+  bool isSpellCasting;
+  int enemiesKilled;
+  Camera2D camera;
+};
+} // namespace game

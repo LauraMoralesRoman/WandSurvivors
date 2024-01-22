@@ -1,15 +1,12 @@
 #include "../../include/raylib.h"
 #include "AttackInt.hpp"
 #include "PlayerStat.hpp"
-#include "UpgradePlayerStats.hpp"
 #include "Wand.hpp"
 #include "component.hpp"
 #include <vector>
 #pragma once
 
-class Player : virtual public UpgradePlayerStats,
-               virtual public Component,
-               virtual public AttackInt {
+class Player : virtual public Component, virtual public AttackInt {
 public:
   Player() = default;
 
@@ -17,12 +14,7 @@ public:
   Player &setActualPosition(Vector2 newPosition);
 
   Player &setStats(const PlayerStat &stats);
-  const PlayerStat &getPlayerStats() const;
-
-  // upgrade stats
-  void upgradeHealth() override;
-  void upgradeArmor() override;
-  void upgradeSpeed() override;
+  PlayerStat &getPlayerStats();
 
   std::vector<Wand> &getPlayerWands();
   void addNewWand(const Wand &wand);
